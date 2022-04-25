@@ -1,17 +1,83 @@
 import '../styles/contact-list.scss';
 import '../styles/header.scss';
 import '../styles/new-contact.scss';
+import '../styles/reset.scss';
 import contactList from '../data/contacts.json';
+import { useState } from 'react';
 // import callToApi from '../services/api';
-// import { useEffect, useState } from 'react';
 // import ls from '../services/localStorage';
 
 function App() {
+  //variables de estado
+  const [data, setData] = useState(contactList);
+  const [search, setSearch] = useState('');
+  const [newContact, setNewContact] = useState({
+    name: '',
+    lastname: '',
+    phone: '',
+    email: '',
+  });
+
+  const handleSearch = (ev) => {
+    setSearch(ev.target.value);
+  };
+  const handleNewContact = (ev) => {
+    setNewContact({
+      ...newContact,
+      [ev.target.id]: ev.target.value,
+    });
+  };
+
+  const handleClick = (ev) => {
+    ev.preventDefault();
+    setData([...data, newContact]);
+    setNewContact({
+      name: '',
+      lastname: '',
+      phone: '',
+      email: '',
+    });
+  };
+
+  const htmlData = data
+    .filter(
+      (contact) =>
+        contact.name.toLowerCase().includes(search.toLowerCase()) ||
+        contact.lastname.toLowerCase().includes(search.toLowerCase())
+    )
+    .map((contact, i) => {
+      return (
+        <li className="contact__item" key={i}>
+          <p className="contact__name">
+            <label className="contact__label">Nombre:</label>
+            {contact.name} {contact.lastname}
+          </p>
+          <p className="contact__phone">
+            <label className="contact__label">Teléfono:</label>
+            <a
+              href={`tel:${contact.phone}`}
+              title="Pulsa aquí para llamar a Lola"
+            >
+              {contact.phone}
+            </a>
+          </p>
+          <p className="contact__mail">
+            <label className="contact__label">Email:</label>
+            <a
+              href="mailto:lmartinez@adalab.es"
+              title="Pulsa aquí para escribir a Lola"
+            >
+              {contact.email}
+            </a>
+          </p>
+        </li>
+      );
+    });
   return (
     <div className="page">
       {/* header */}
       <header className="header">
-        <h1 className="header__title">Mi agenda de contactos</h1>
+        <h1 className="header__title">Mi agenda de contactos Adalab</h1>
         <form>
           <input
             className="header__search"
@@ -19,94 +85,15 @@ function App() {
             type="search"
             name="search"
             placeholder="Filtrar contactos por nombre"
+            onChange={handleSearch}
+            value={search}
           />
         </form>
       </header>
 
       <main>
         {/* contact list */}
-        <ul className="contact__list">
-          <li className="contact__item">
-            <p className="contact__name">
-              <label className="contact__label">Nombre:</label>Lola Martinez
-            </p>
-            <p className="contact__phone">
-              <label className="contact__label">Teléfono:</label>
-              <a href="tel:603256289" title="Pulsa aquí para llamar a Lola">
-                603256289
-              </a>
-            </p>
-            <p className="contact__mail">
-              <label className="contact__label">Email:</label>
-              <a
-                href="mailto:lmartinez@adalab.es"
-                title="Pulsa aquí para escribir a Lola"
-              >
-                lmartinez@adalab.es
-              </a>
-            </p>
-          </li>
-          <li className="contact__item">
-            <p className="contact__name">
-              <label className="contact__label">Nombre:</label>Martha Houston
-            </p>
-            <p className="contact__phone">
-              <label className="contact__label">Teléfono:</label>
-              <a href="tel:612435678" title="Pulsa aquí para llamar a Martha">
-                612435678
-              </a>
-            </p>
-            <p className="contact__mail">
-              <label className="contact__label">Email:</label>
-              <a
-                href="mailto:mhouston@adalab.es"
-                title="Pulsa aquí para escribir a Martha"
-              >
-                mhouston@adalab.es
-              </a>
-            </p>
-          </li>
-          <li className="contact__item">
-            <p className="contact__name">
-              <label className="contact__label">Nombre:</label>Lillie Moore
-            </p>
-            <p className="contact__phone">
-              <label className="contact__label">Teléfono:</label>
-              <a href="tel:632456789" title="Pulsa aquí para llamar a Lillie">
-                632456789
-              </a>
-            </p>
-            <p className="contact__mail">
-              <label className="contact__label">Email:</label>
-              <a
-                href="mailto:lillie@adalab.es"
-                title="Pulsa aquí para escribir a Lillie"
-              >
-                lillie@adalab.es
-              </a>
-            </p>
-          </li>
-          <li className="contact__item">
-            <p className="contact__name">
-              <label className="contact__label">Nombre:</label>Jane Norton
-            </p>
-            <p className="contact__phone">
-              <label className="contact__label">Teléfono:</label>
-              <a href="tel:603256679" title="Pulsa aquí para llamar a Jane">
-                603256679
-              </a>
-            </p>
-            <p className="contact__mail">
-              <label className="contact__label">Email:</label>
-              <a
-                href="mailto:janenorton@adalab.es"
-                title="Pulsa aquí para escribir a Jane"
-              >
-                janenorton@adalab.es
-              </a>
-            </p>
-          </li>
-        </ul>
+        <ul className="contact__list">{htmlData}</ul>
 
         {/* new contact */}
         <form className="new-contact__form">
@@ -117,6 +104,8 @@ function App() {
             name="name"
             id="name"
             placeholder="Nombre"
+            onChange={handleNewContact}
+            value={newContact.name}
           />
           <input
             className="new-contact__input"
@@ -124,6 +113,8 @@ function App() {
             name="lastname"
             id="lastname"
             placeholder="Apellidos"
+            onChange={handleNewContact}
+            value={newContact.lastname}
           />
           <input
             className="new-contact__input"
@@ -131,6 +122,8 @@ function App() {
             name="phone"
             id="phone"
             placeholder="Teléfono"
+            onChange={handleNewContact}
+            value={newContact.phone}
           />
           <input
             className="new-contact__input"
@@ -138,8 +131,15 @@ function App() {
             name="email"
             id="email"
             placeholder="Email"
+            onChange={handleNewContact}
+            value={newContact.email}
           />
-          <input className="new-contact__btn" type="submit" value="Añadir" />
+          <input
+            className="new-contact__btn"
+            type="submit"
+            value="Añadir"
+            onClick={handleClick}
+          />
         </form>
       </main>
     </div>
